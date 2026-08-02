@@ -31,7 +31,7 @@ public class ItemService {
 
     public ItemResponse update(Long id, ItemRequest request) {
         Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Item not found"));
+                .orElseThrow(() -> new ItemNotFoundException(id));
 
         item.setName(request.getName());
         item.setDescription(request.getDescription());
@@ -40,7 +40,7 @@ public class ItemService {
 
     public void delete(Long id) {
         Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Item not found"));
+                .orElseThrow(() -> new ItemNotFoundException(id));
         itemRepository.delete(item);
     }
 
