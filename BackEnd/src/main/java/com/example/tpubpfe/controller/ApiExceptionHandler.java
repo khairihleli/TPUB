@@ -1,5 +1,6 @@
 package com.example.tpubpfe.controller;
 
+import com.example.tpubpfe.service.CompanyNotFoundException;
 import com.example.tpubpfe.service.ItemNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,12 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(ItemNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleItemNotFound(ItemNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(CompanyNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleCompanyNotFound(CompanyNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage()));
     }
