@@ -1,5 +1,6 @@
 package com.example.tpubpfe.controller;
 
+import com.example.tpubpfe.service.CampaignNotFoundException;
 import com.example.tpubpfe.service.CompanyNotFoundException;
 import com.example.tpubpfe.service.ItemNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,12 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(CompanyNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleCompanyNotFound(CompanyNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(CampaignNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleCampaignNotFound(CampaignNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage()));
     }
