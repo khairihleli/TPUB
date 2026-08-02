@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TPUB CRUD Dashboard</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; background: #f6f8fb; color: #1f2937; }
+      .card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 800px; margin: auto; }
+      form { display: grid; gap: 0.7rem; margin-bottom: 1rem; }
+      input, textarea, button { padding: 0.7rem; border-radius: 8px; border: 1px solid #d1d5db; }
+      button { cursor: pointer; background: #2563eb; color: white; border: none; }
+      button.secondary { background: #6b7280; }
+      ul { list-style: none; padding: 0; }
+      li { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>TPUB CRUD Dashboard</h1>
+      <p>Manage items through the Spring Boot backend.</p>
+
+      <form id="itemForm">
+        <input id="name" placeholder="Item name" required />
+        <textarea id="description" placeholder="Item description"></textarea>
+        <button type="submit">Save item</button>
+      </form>
+
+      <ul id="itemList"></ul>
+    </div>
+
+    <script>
+      const apiUrl = 'http://localhost:8080/api/items';
+      const form = document.getElementById('itemForm');
+      const itemList = document.getElementById('itemList');
+      let editingId = null;
+
+      async function loadItems() {
+        const response = await fetch(apiUrl);
+        const items = await response.json();
+        itemList.innerHTML = '';
+        items.forEach(item => {
+          const li = document.createElement('li');
+          li.innerHTML = `<span><strong>${item.name}</strong><br>${item.description || ''}</span><div><button class="secondary" onclick="editItem(${item.id}, '${item.name}', '${(item.description || '').replace(/'/g, "\\'")}')">Edit</button> <button onclick="deleteItem(${item.id})">Delete</button></div>`;
+          itemList.appendChild(li);
+        });
+      }
+
+      async function deleteItem(id) {
+        await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
+        await loadItems();
+      }
+
+      async function editItem(id, name, description) {
+        editingId = id;
+        document.getElementById('name').value = name;
+        document.getElementById('description').value = description;
+        form.querySelector('button').textContent = 'Update item';
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const payload = {
+          name: document.getElementById('name').value,
+          description: document.getElementById('description').value
+        };
+
+        if (editingId) {
+          await fetch(`${apiUrl}/${editingId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          editingId = null;
+        } else {
+          await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        }
+
+        form.reset();
+        form.querySelector('button').textContent = 'Save item';
+        await loadItems();
+      });
+
+      loadItems();
+    </script>
+  </body>
+</html>

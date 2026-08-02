@@ -14,6 +14,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
 
     public Item create(Item item) {
+        validateItem(item);
         return itemRepository.save(item);
     }
 
@@ -22,6 +23,7 @@ public class ItemService {
     }
 
     public Item update(Long id, Item itemDetails) {
+        validateItem(itemDetails);
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
 
@@ -34,5 +36,11 @@ public class ItemService {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
         itemRepository.delete(item);
+    }
+
+    private void validateItem(Item item) {
+        if (item == null || item.getName() == null || item.getName().isBlank()) {
+            throw new RuntimeException("Item name is required");
+        }
     }
 }
