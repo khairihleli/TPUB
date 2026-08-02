@@ -1,11 +1,14 @@
 package com.example.tpubpfe.service;
 
+import com.example.tpubpfe.dto.ItemRequest;
+import com.example.tpubpfe.dto.ItemResponse;
 import com.example.tpubpfe.model.Item;
 import com.example.tpubpfe.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -13,23 +16,26 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
 
-    public Item create(Item item) {
-        validateItem(item);
-        return itemRepository.save(item);
+    public ItemResponse create(ItemRequest request) {
+        Item item = new Item();
+        item.setName(request.getName());
+        item.setDescription(request.getDescription());
+        return toResponse(itemRepository.save(item));
     }
 
-    public List<Item> findAll() {
-        return itemRepository.findAll();
+    public List<ItemResponse> findAll() {
+        return itemRepository.findAll().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
-    public Item update(Long id, Item itemDetails) {
-        validateItem(itemDetails);
+    public ItemResponse update(Long id, ItemRequest request) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
 
-        item.setName(itemDetails.getName());
-        item.setDescription(itemDetails.getDescription());
-        return itemRepository.save(item);
+        item.setName(request.getName());
+        item.setDescription(request.getDescription());
+        return toResponse(itemRepository.save(item));
     }
 
     public void delete(Long id) {
@@ -38,9 +44,7 @@ public class ItemService {
         itemRepository.delete(item);
     }
 
-    private void validateItem(Item item) {
-        if (item == null || item.getName() == null || item.getName().isBlank()) {
-            throw new RuntimeException("Item name is required");
-        }
+    private ItemResponse toResponse(Item item) {
+        return new ItemResponse(item.getId(), item.getName(), item.getDescription());
     }
 }

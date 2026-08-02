@@ -1,7 +1,9 @@
 package com.example.tpubpfe.controller;
 
-import com.example.tpubpfe.model.Item;
+import com.example.tpubpfe.dto.ItemRequest;
+import com.example.tpubpfe.dto.ItemResponse;
 import com.example.tpubpfe.service.ItemService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,18 +19,18 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ResponseEntity<Item> createItem(@RequestBody Item item) {
-        return new ResponseEntity<>(itemService.create(item), HttpStatus.CREATED);
+    public ResponseEntity<ItemResponse> createItem(@Valid @RequestBody ItemRequest request) {
+        return new ResponseEntity<>(itemService.create(request), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<Item>> getAllItems() {
+    public ResponseEntity<List<ItemResponse>> getAllItems() {
         return ResponseEntity.ok(itemService.findAll());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Item> updateItem(@PathVariable Long id, @RequestBody Item itemDetails) {
-        return ResponseEntity.ok(itemService.update(id, itemDetails));
+    public ResponseEntity<ItemResponse> updateItem(@PathVariable Long id, @Valid @RequestBody ItemRequest request) {
+        return ResponseEntity.ok(itemService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
